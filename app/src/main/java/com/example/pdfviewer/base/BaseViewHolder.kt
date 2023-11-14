@@ -8,4 +8,5 @@ import androidx.recyclerview.widget.RecyclerView
 abstract class BaseViewHolder<VB : ViewDataBinding>(private val view: View) :
     RecyclerView.ViewHolder(view) {
     protected val binding = DataBindingUtil.bind<VB>(view)!!
+
 }

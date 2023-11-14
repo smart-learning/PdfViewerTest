@@ -1,10 +1,10 @@
 package com.example.pdfviewer
 
-import android.content.res.AssetFileDescriptor
 import android.graphics.pdf.PdfRenderer
 import android.os.Bundle
-import android.os.ParcelFileDescriptor
 import androidx.activity.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
@@ -12,56 +12,36 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.pdfviewer.adapter.PdfViewAdapter
 import com.example.pdfviewer.base.BaseActivity
 import com.example.pdfviewer.databinding.ActivityMainBinding
+import com.example.pdfviewer.dialog.TocFragmentDialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
-    private val vm: MainActivityViewModel by viewModels()
+    private val vm: MainActivityViewModel by viewModels {
+        object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return MainActivityViewModel(
+                    fm = PdfViewManager.getInstance(context = applicationContext)
+                ) as T
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         getRenderer()
         bindRecyclerView()
+
+        bindButton()
+        observe()
     }
 
     private fun getRenderer() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            readFile()
-        }
-    }
-
-    private suspend fun readFile() {
-        withContext(Dispatchers.IO) {
-            val ins = assets.open("pdf/test.pdf")
-            val file = File(cacheDir.absolutePath + "/test")
-            try {
-                val fos = FileOutputStream(file)
-                val buffer = ByteArray(4096)
-                while (true) {
-                    val len = ins.read(buffer)
-                    if (len == -1) break
-                    fos.write(buffer, 0, len)
-                }
-
-                fos.flush()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-            val descriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
-
-            withContext(Dispatchers.Main) {
-                binding.recyclerView.adapter = PdfViewAdapter(
-                    renderer = PdfRenderer(descriptor),
-                    pageWidth = resources.displayMetrics.widthPixels
-                )
-            }
-        }
+        vm.readPdfFile(path = "pdf/test2.pdf", savePath = cacheDir.absolutePath + "/test")
     }
 
     private fun bindRecyclerView() {
@@ -71,6 +51,31 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             //Attach a LinearSnapHelper for snapping behavior
             val snapHelper = LinearSnapHelper();
             snapHelper.attachToRecyclerView(this);
+        }
+    }
+
+    private fun bindButton(){
+        binding.button.setOnClickListener {
+            val dialog = TocFragmentDialog()
+            dialog.show(supportFragmentManager,"dialog_toc")
+        }
+    }
+
+    private fun observe() {
+        lifecycleScope.launch {
+            //1회성
+            vm.descriptor.collectLatest {
+                if (it == null) return@collectLatest
+
+                withContext(Dispatchers.Main) {
+                    binding.recyclerView.adapter = PdfViewAdapter(
+                        renderer = PdfRenderer(it),
+                        pageWidth = resources.displayMetrics.widthPixels
+                    )
+                }
+
+                cancel()
+            }
         }
     }
 }
