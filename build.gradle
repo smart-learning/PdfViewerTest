@@ -1,0 +1,23 @@
+buildscript {
+    ext {
+        // SDK and tools
+        kotlinVersion = '1.8.0'
+        lifecycle_version = '2.4.1'
+        fragment_version = '1.3.6'
+        work_version = '2.7.1'
+        readium_version = '2.2.1'
+        logger_version = '2.2.0'
+        nano_version = '2.3.1'
+        room_version = "2.4.3" //Apple silcon 때문에 2.4.0 버전 이상만 가능
+        coroutines_version = "1.4.2"
+        gson_version = "2.8.9"
+    }
+}
+
+
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    id 'com.android.application' version '7.3.0' apply false
+    id 'com.android.library' version '7.3.0' apply false
+    id 'org.jetbrains.kotlin.android' version '1.7.10' apply false
+}
