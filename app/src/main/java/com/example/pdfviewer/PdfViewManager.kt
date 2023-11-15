@@ -2,7 +2,6 @@ package com.example.pdfviewer
 
 import android.content.Context
 import android.os.ParcelFileDescriptor
-import com.tom_roush.pdfbox.pdmodel.PDDocument
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,8 +29,6 @@ class PdfViewManager private constructor(
     private val _descriptor: MutableStateFlow<ParcelFileDescriptor?> = MutableStateFlow(null)
     val descriptor: StateFlow<ParcelFileDescriptor?> = _descriptor.asStateFlow()
 
-    private val _document: MutableStateFlow<PDDocument?> = MutableStateFlow(null)
-    val document: StateFlow<PDDocument?> = _document.asStateFlow()
 
     fun readPdfFile(path: String, savePath : String) {
         scope.launch(Dispatchers.IO) {
@@ -51,14 +48,7 @@ class PdfViewManager private constructor(
                 e.printStackTrace()
             }
 
-
-            initLoadPDDocument(file = file)
             _descriptor.value = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
         }
     }
-
-    private fun initLoadPDDocument(file: File) {
-        _document.value = PDDocument.load(file)
-    }
-
 }
