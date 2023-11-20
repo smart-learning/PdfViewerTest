@@ -29,13 +29,7 @@ class PdfViewManager private constructor(
 
     private val _renderer: MutableStateFlow<PdfRenderer?> = MutableStateFlow(null)
     val renderer: StateFlow<PdfRenderer?> = _renderer.asStateFlow()
-
-<<<<<<< Updated upstream
-
-    fun readPdfFile(path: String, savePath : String) {
-=======
     fun readPdfFile(path: String, savePath: String) {
->>>>>>> Stashed changes
         scope.launch(Dispatchers.IO) {
             val ins = context.assets.open(path)
             val file = File(savePath)
@@ -53,12 +47,9 @@ class PdfViewManager private constructor(
                 e.printStackTrace()
             }
 
-<<<<<<< Updated upstream
-            _descriptor.value = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
-=======
             _renderer.value =
                 PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
->>>>>>> Stashed changes
+
         }
     }
 }
