@@ -1,6 +1,7 @@
 package com.example.pdfviewer
 
 import android.content.Context
+import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,11 +27,15 @@ class PdfViewManager private constructor(
     private val scope =
         CoroutineScope(CoroutineName("File Manager scope") + SupervisorJob() + Dispatchers.Default)
 
-    private val _descriptor: MutableStateFlow<ParcelFileDescriptor?> = MutableStateFlow(null)
-    val descriptor: StateFlow<ParcelFileDescriptor?> = _descriptor.asStateFlow()
+    private val _renderer: MutableStateFlow<PdfRenderer?> = MutableStateFlow(null)
+    val renderer: StateFlow<PdfRenderer?> = _renderer.asStateFlow()
 
+<<<<<<< Updated upstream
 
     fun readPdfFile(path: String, savePath : String) {
+=======
+    fun readPdfFile(path: String, savePath: String) {
+>>>>>>> Stashed changes
         scope.launch(Dispatchers.IO) {
             val ins = context.assets.open(path)
             val file = File(savePath)
@@ -48,7 +53,12 @@ class PdfViewManager private constructor(
                 e.printStackTrace()
             }
 
+<<<<<<< Updated upstream
             _descriptor.value = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+=======
+            _renderer.value =
+                PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY))
+>>>>>>> Stashed changes
         }
     }
 }
